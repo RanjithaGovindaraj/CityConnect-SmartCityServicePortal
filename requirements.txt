@@ -1,7 +1,8 @@
-Flask==3.0.2
-flask-cors==4.0.0
-Werkzeug==3.0.1
-PyMySQL==1.1.0
-python-dotenv==1.0.1
+flask
+flask-cors
+werkzeug
+pymysql
+python-dotenv
+
 
 
