@@ -55,7 +55,10 @@ if os.environ.get('VERCEL'):
 else:
     DB_PATH = os.path.join(os.path.dirname(__file__), 'cityconnect_app.db')
 
+_db_initialized = False
+
 def get_db():
+    global _db_initialized
     mysql_host = os.environ.get('MYSQL_HOST')
     if mysql_host:
         try:
@@ -75,12 +78,16 @@ def get_db():
 
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    if not _db_initialized:
+        try:
+            ensure_tables_exist(conn)
+            _db_initialized = True
+        except Exception as e:
+            print("DB init error:", e)
     return conn
 
-def init_db():
-    conn = get_db()
+def ensure_tables_exist(conn):
     cursor = conn.cursor()
-    
     cursor.executescript('''
     CREATE TABLE IF NOT EXISTS locations (
         id TEXT PRIMARY KEY,
@@ -176,12 +183,14 @@ def init_db():
     );
     ''')
 
-    # Seed Initial Data if empty
     cursor.execute("SELECT COUNT(*) FROM locations")
     if cursor.fetchone()[0] == 0:
         seed_data(cursor)
 
     conn.commit()
+
+def init_db():
+    conn = get_db()
     conn.close()
 
 def seed_data(cursor):
