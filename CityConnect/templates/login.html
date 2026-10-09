@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Login – CityConnect Coimbatore Portal{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="bg-navy p-4 text-white text-center">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm" style="width: 54px; height: 54px;">
+                        <i class="fa-solid fa-city fa-xl"></i>
+                    </div>
+                    <h4 class="font-poppins fw-extrabold m-0">CityConnect Portal</h4>
+                    <p class="small text-amber font-mono mb-0">Coimbatore Smart City Municipal Service</p>
+                </div>
+
+                <div class="card-body p-4 p-md-5">
+                    <form action="{{ url_for('login') }}" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted uppercase">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fa-solid fa-envelope text-muted"></i></span>
+                                <input type="email" name="email" id="emailInput" class="form-control rounded-end" placeholder="name@domain.com" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted uppercase">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fa-solid fa-lock text-muted"></i></span>
+                                <input type="password" name="password" id="passwordInput" class="form-control rounded-end" placeholder="••••••••" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2.5 fw-extrabold rounded-3 shadow-sm mb-3">
+                            <i class="fa-solid fa-right-to-bracket me-2"></i> Login to Portal
+                        </button>
+                    </form>
+
+                    <!-- QUICK DEMO ACCOUNTS ACCORDION -->
+                    <div class="border-top pt-3 mt-3">
+                        <p class="small fw-bold text-muted mb-2 text-center">Quick Demo Login Shortcuts:</p>
+                        <div class="d-grid gap-2">
+                            <button type="button" onclick="fillLogin('citizen@gmail.com', 'password123')" class="btn btn-outline-primary btn-sm text-start font-bold rounded-3">
+                                <i class="fa-solid fa-user me-2"></i> Citizen: citizen@gmail.com
+                            </button>
+                            <button type="button" onclick="fillLogin('employee@coimbatore.gov.in', 'password123')" class="btn btn-outline-warning btn-sm text-start font-bold text-dark rounded-3">
+                                <i class="fa-solid fa-user-shield me-2"></i> Officer: employee@coimbatore.gov.in
+                            </button>
+                            <button type="button" onclick="fillLogin('admin@ccmc.gov.in', 'password123')" class="btn btn-outline-dark btn-sm text-start font-bold rounded-3">
+                                <i class="fa-solid fa-user-gear me-2"></i> Admin: admin@ccmc.gov.in
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function fillLogin(email, pass) {
+    document.getElementById('emailInput').value = email;
+    document.getElementById('passwordInput').value = pass;
+}
+</script>
+{% endblock %}

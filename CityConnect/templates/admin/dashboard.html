@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Portal – CityConnect Coimbatore Municipal Corporation{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- WELCOME HEADER -->
+    <div class="card border-0 bg-navy text-white rounded-4 shadow-sm p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <span class="badge bg-amber text-navy fw-black px-3 py-1 mb-2">COMMISSIONER EXECUTIVE OFFICE</span>
+                <h3 class="font-poppins fw-extrabold m-0">Welcome, {{ user_name }}</h3>
+                <p class="small text-slate-300 m-0 mt-1">Coimbatore Smart City Master Administrative & Service Governance Portal</p>
+            </div>
+            <span class="badge bg-blue-900 border border-blue-700 text-blue-200 px-3 py-2 font-mono">CCMC Executive Admin</span>
+        </div>
+    </div>
+
+    <!-- METRICS CARDS -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2 col-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center">
+                <span class="text-muted small fw-bold uppercase">Citizens</span>
+                <h4 class="fw-extrabold m-0 text-navy mt-1">14,820</h4>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center">
+                <span class="text-muted small fw-bold uppercase">Officers</span>
+                <h4 class="fw-extrabold m-0 text-navy mt-1">86</h4>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center">
+                <span class="text-muted small fw-bold uppercase">Total Complaints</span>
+                <h4 class="fw-extrabold m-0 text-primary mt-1">1,240</h4>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center">
+                <span class="text-muted small fw-bold uppercase">Pending</span>
+                <h4 class="fw-extrabold m-0 text-warning mt-1">142</h4>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center">
+                <span class="text-muted small fw-bold uppercase">Resolved</span>
+                <h4 class="fw-extrabold m-0 text-success mt-1">1,098</h4>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center">
+                <span class="text-muted small fw-bold uppercase">Pending Bills</span>
+                <h4 class="fw-extrabold m-0 text-danger mt-1">340</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALL COMPLAINTS & ASSIGNMENT SECTION -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4" id="all-complaints">
+        <div class="card-header bg-white p-3 px-4 d-flex justify-content-between align-items-center border-0">
+            <h5 class="fw-extrabold m-0 text-navy font-poppins"><i class="fa-solid fa-bullhorn text-primary me-2"></i> Civic Complaints & Field Assignment</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle m-0 border-top">
+                <thead class="bg-light text-muted small uppercase font-mono">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Category</th>
+                        <th>Citizen</th>
+                        <th>Ward</th>
+                        <th>Status</th>
+                        <th>Assigned Inspector</th>
+                        <th class="pe-4 text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="small fw-bold">
+                    <tr>
+                        <td class="ps-4 font-mono text-primary">CBE-2026-8942</td>
+                        <td><span class="badge bg-primary">Roads</span></td>
+                        <td>Ramesh Kumar (9876543210)</td>
+                        <td>Ward 34</td>
+                        <td><span class="badge bg-warning text-dark">Work In Progress</span></td>
+                        <td>Sundaram Inspector</td>
+                        <td class="pe-4 text-end">
+                            <button class="btn btn-outline-primary btn-sm rounded-3 font-bold" onclick="alert('Viewing or re-assigning complaint')">Assign Officer</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="ps-4 font-mono text-primary">CBE-2026-9011</td>
+                        <td><span class="badge bg-secondary">Garbage Dump</span></td>
+                        <td>Ramesh Kumar (9876543210)</td>
+                        <td>Ward 28</td>
+                        <td><span class="badge bg-info text-dark">Assigned</span></td>
+                        <td>Sundaram Inspector</td>
+                        <td class="pe-4 text-end">
+                            <button class="btn btn-outline-primary btn-sm rounded-3 font-bold" onclick="alert('Viewing or re-assigning complaint')">Assign Officer</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- COIMBATORE GIS MASTER MAP -->
+    <div class="card border-0 shadow-sm rounded-4" id="gis-map">
+        <div class="card-header bg-white p-3 px-4 border-0">
+            <h5 class="fw-extrabold m-0 text-navy font-poppins"><i class="fa-solid fa-map text-danger me-2"></i> Coimbatore Smart City GIS Master Map</h5>
+        </div>
+        <div class="card-body p-0 rounded-bottom-4 overflow-hidden">
+            <div id="adminGisMap" style="height: 420px;"></div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('adminGisMap')) {
+        var map = L.map('adminGisMap').setView([11.0168, 76.9558], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker([11.0168, 76.9558]).addTo(map)
+            .bindPopup("<b>CCMC Headquarters</b><br>Coimbatore Municipal Corporation")
+            .openPopup();
+
+        L.marker([11.0267, 77.0018]).addTo(map)
+            .bindPopup("<b>Complaint #CBE-2026-8942</b><br>Pothole - Peelamedu Signal");
+    }
+});
+</script>
+{% endblock %}

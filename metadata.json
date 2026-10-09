@@ -1,0 +1,11 @@
+{
+  "name": "CityConnect – Coimbatore Smart City Service Portal",
+  "description": "Official municipal service portal for Coimbatore City Municipal Corporation providing citizen services, smart complaint management, online bill payments, emergency contacts, role-based dashboards, and AI assistance.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

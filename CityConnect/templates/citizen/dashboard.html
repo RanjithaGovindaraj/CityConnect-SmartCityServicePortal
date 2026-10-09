@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Citizen Portal – CityConnect Coimbatore{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- WELCOME BANNER -->
+    <div class="card border border-slate-800 text-white rounded-4 shadow-sm p-4 mb-4" style="background: linear-gradient(to right, #0f172a, #1e3a8a, #0f172a);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-primary-subtle text-blue-300 border border-primary px-3 py-1 font-bold">CITIZEN PORTAL ACTIVE</span>
+                    <span class="badge bg-dark text-blue-200 border border-secondary px-3 py-1"><i class="fa-solid fa-location-dot me-1 text-danger"></i> Ward 24 (RS Puram)</span>
+                </div>
+                <h3 class="font-poppins fw-extrabold text-white m-0">Welcome back, {{ user_name }}</h3>
+                <p class="small text-slate-300 m-0 mt-2">Welcome to your unified Municipal Services Dashboard. Explore the interactive city map, register geotagged grievances, pay utility bills, and access 24x7 municipal assistance.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary fw-extrabold px-4 py-2.5 rounded-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#newComplaintModal">
+                    <i class="fa-solid fa-plus-circle me-2"></i> Register Complaint
+                </button>
+                <a href="#bills" class="btn btn-success fw-extrabold px-4 py-2.5 rounded-3 shadow-sm">
+                    <i class="fa-solid fa-credit-card me-2"></i> Pay Bills
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK METRICS -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-primary border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small fw-bold uppercase">My Complaints</span>
+                        <h3 class="fw-extrabold m-0 text-navy">2</h3>
+                    </div>
+                    <div class="p-3 bg-blue-100 text-primary rounded-3">
+                        <i class="fa-solid fa-clipboard-list fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-warning border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small fw-bold uppercase">In Progress</span>
+                        <h3 class="fw-extrabold m-0 text-warning">1</h3>
+                    </div>
+                    <div class="p-3 bg-warning-subtle text-warning rounded-3">
+                        <i class="fa-solid fa-spinner fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-danger border-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small fw-bold uppercase">Pending Bills</span>
+                        <h3 class="fw-extrabold m-0 text-danger">₹4,130</h3>
+                    </div>
+                    <div class="p-3 bg-danger-subtle text-danger rounded-3">
+                        <i class="fa-solid fa-file-invoice-dollar fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MY COMPLAINTS TABLE -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4" id="my-complaints">
+        <div class="card-header bg-white p-3 px-4 d-flex justify-content-between align-items-center border-0">
+            <h5 class="fw-extrabold m-0 text-navy font-poppins"><i class="fa-solid fa-list-check text-primary me-2"></i> Track My Complaints</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle m-0 border-top">
+                <thead class="bg-light text-muted small uppercase font-mono">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Ward</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody class="small fw-bold">
+                    <tr>
+                        <td class="ps-4 font-mono text-primary">CBE-2026-8942</td>
+                        <td><span class="badge bg-primary">Roads</span></td>
+                        <td>Large pothole near Peelamedu signal</td>
+                        <td>Ward 34</td>
+                        <td>Aug 01, 2026</td>
+                        <td><span class="badge bg-warning text-dark">Work In Progress</span></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-4 font-mono text-primary">CBE-2026-9011</td>
+                        <td><span class="badge bg-secondary">Garbage Dump</span></td>
+                        <td>Overflowing bin near Nava India junction</td>
+                        <td>Ward 28</td>
+                        <td>Aug 05, 2026</td>
+                        <td><span class="badge bg-info text-dark">Assigned</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- BILL PAYMENTS SECTION -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4" id="bill-payments">
+        <div class="card-header bg-white p-3 px-4 border-0">
+            <h5 class="fw-extrabold m-0 text-navy font-poppins"><i class="fa-solid fa-receipt text-warning me-2"></i> Municipal Property Tax & Water Bills</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 border rounded-3 bg-light d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-danger mb-1">Unpaid</span>
+                            <h6 class="fw-extrabold m-0">Property Tax - Q2 2026</h6>
+                            <span class="small text-muted font-mono">Bill No: BILL-PT-2026-001</span>
+                        </div>
+                        <div class="text-end">
+                            <h5 class="fw-black text-navy m-0">₹3,450</h5>
+                            <button class="btn btn-primary btn-sm rounded-3 fw-bold mt-2" onclick="alert('Proceeding to Razorpay Payment Gateway...')">Pay Now</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 border rounded-3 bg-light d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-danger mb-1">Unpaid</span>
+                            <h6 class="fw-extrabold m-0">Water Supply Charges</h6>
+                            <span class="small text-muted font-mono">Bill No: BILL-WC-2026-088</span>
+                        </div>
+                        <div class="text-end">
+                            <h5 class="fw-black text-navy m-0">₹680</h5>
+                            <button class="btn btn-primary btn-sm rounded-3 fw-bold mt-2" onclick="alert('Proceeding to Water Supply Payment Portal...')">Pay Now</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EMERGENCY CONTACTS GRID -->
+    <div class="card border-0 shadow-sm rounded-4" id="emergency">
+        <div class="card-header bg-white p-3 px-4 border-0">
+            <h5 class="fw-extrabold m-0 text-navy font-poppins"><i class="fa-solid fa-phone-volume text-danger me-2"></i> Municipal Emergency Helplines</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-3 col-6">
+                    <div class="p-3 border rounded-3 text-center bg-light">
+                        <i class="fa-solid fa-headset fa-2xl text-primary mb-2"></i>
+                        <h6 class="fw-extrabold m-0">CCMC Helpline</h6>
+                        <span class="badge bg-primary fs-6 mt-1">1913</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-3 border rounded-3 text-center bg-light">
+                        <i class="fa-solid fa-fire-extinguisher fa-2xl text-danger mb-2"></i>
+                        <h6 class="fw-extrabold m-0">Fire Station</h6>
+                        <span class="badge bg-danger fs-6 mt-1">101</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-3 border rounded-3 text-center bg-light">
+                        <i class="fa-solid fa-shield-halved fa-2xl text-navy mb-2"></i>
+                        <h6 class="fw-extrabold m-0">City Police</h6>
+                        <span class="badge bg-dark fs-6 mt-1">100</span>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-3 border rounded-3 text-center bg-light">
+                        <i class="fa-solid fa-truck-medical fa-2xl text-success mb-2"></i>
+                        <h6 class="fw-extrabold m-0">Ambulance</h6>
+                        <span class="badge bg-success fs-6 mt-1">108</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- NEW COMPLAINT MODAL -->
+<div class="modal fade" id="newComplaintModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header bg-navy text-white p-3 px-4">
+                <h5 class="modal-title font-poppins fw-extrabold h6 m-0"><i class="fa-solid fa-bullhorn text-amber me-2"></i> Register Civic Complaint</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('new_complaint') }}" method="POST" class="p-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Category</label>
+                        <select name="category" class="form-select rounded-3" required>
+                            <option value="Roads">Roads & Potholes</option>
+                            <option value="Garbage Dump">Garbage & Sanitation</option>
+                            <option value="Streetlights">Streetlight Defect</option>
+                            <option value="Water Leakage">Water Supply Leakage</option>
+                            <option value="Drainage">Drainage Overflow</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Ward / Zone</label>
+                        <input type="text" name="ward_no" class="form-control rounded-3" value="Ward 34 - Peelamedu" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Specific Location Address</label>
+                        <input type="text" name="address" class="form-control rounded-3" placeholder="e.g. Near Peelamedu Signal Junction, Avinashi Road" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Issue Description</label>
+                        <textarea name="description" rows="3" class="form-control rounded-3" placeholder="Describe the civic issue in detail..." required></textarea>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2 pt-4">
+                    <button type="button" class="btn btn-light rounded-3 font-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-3 font-extrabold">Submit Complaint</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

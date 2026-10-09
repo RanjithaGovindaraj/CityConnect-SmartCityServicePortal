@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Field Officer Portal – CityConnect Coimbatore{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- WELCOME HEADER -->
+    <div class="card border border-slate-800 text-white rounded-4 shadow-sm p-4 mb-4" style="background: linear-gradient(to right, #0f172a, #1e3a8a, #0f172a);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-primary-subtle text-blue-300 border border-primary px-3 py-1 font-bold">OFFICER PORTAL ACTIVE</span>
+                    <span class="badge bg-dark text-blue-200 border border-secondary font-mono px-3 py-1">EMP-CBE-usr-employee-1</span>
+                    <span class="badge bg-warning-subtle text-warning border border-warning px-3 py-1">Senior Field Inspector</span>
+                </div>
+                <h3 class="font-poppins fw-extrabold text-white m-0">Welcome back, {{ user_name }}</h3>
+                <div class="small text-slate-300 mt-2 font-medium">
+                    <span>Department: <strong class="text-info">Sanitation & Solid Waste</strong></span>
+                    <span class="mx-2">•</span>
+                    <span>Jurisdiction: <strong class="text-blue-300">West Zone (Wards 23-45)</strong></span>
+                </div>
+                <p class="small text-slate-300 m-0 mt-2">Welcome to the Officer Field Operations Console. Review assigned civic grievances, navigate municipal GIS map layers, record field inspection resolution notes, and access emergency contacts.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="#assigned-complaints" class="btn btn-primary fw-extrabold px-3 py-2 rounded-3 shadow-sm">
+                    <i class="fa-solid fa-list-check me-2"></i> Assigned Complaints (2)
+                </a>
+                <a href="#emergency" class="btn btn-warning text-dark fw-extrabold px-3 py-2 rounded-3 shadow-sm">
+                    <i class="fa-solid fa-truck-medical me-2"></i> Emergency Contacts
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- METRICS -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-primary border-4">
+                <span class="text-muted small fw-bold uppercase">Assigned Complaints</span>
+                <h3 class="fw-extrabold m-0 text-navy mt-1">1</h3>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-warning border-4">
+                <span class="text-muted small fw-bold uppercase">In Progress</span>
+                <h3 class="fw-extrabold m-0 text-warning mt-1">1</h3>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-success border-4">
+                <span class="text-muted small fw-bold uppercase">Resolved (This Month)</span>
+                <h3 class="fw-extrabold m-0 text-success mt-1">18</h3>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-info border-4">
+                <span class="text-muted small fw-bold uppercase">Avg Resolution Time</span>
+                <h3 class="fw-extrabold m-0 text-info mt-1">1.8 Days</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- ASSIGNED COMPLAINTS SECTION -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4" id="assigned-complaints">
+        <div class="card-header bg-white p-3 px-4 d-flex justify-content-between align-items-center border-0">
+            <h5 class="fw-extrabold m-0 text-navy font-poppins"><i class="fa-solid fa-list-check text-primary me-2"></i> Assigned Field Work Complaints</h5>
+            <span class="badge bg-primary px-3 py-1 fw-bold font-mono">1 Active Assignment</span>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                {% for c in complaints %}
+                <div class="col-md-6 col-lg-6">
+                    <div class="card border rounded-4 shadow-2xs h-100 p-3 bg-white">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-dark font-mono">{{ c.id }}</span>
+                            <span class="badge bg-warning text-dark font-extrabold">{{ c.status }}</span>
+                        </div>
+                        <h6 class="fw-extrabold text-navy font-poppins mb-1">{{ c.category }}</h6>
+                        <p class="small text-muted mb-2 line-clamp-2">{{ c.description }}</p>
+                        <div class="small text-muted font-mono mb-3">
+                            <i class="fa-solid fa-location-dot text-danger me-1"></i> {{ c.address }}
+                        </div>
+                        <button class="btn btn-primary btn-sm w-100 rounded-3 font-extrabold mt-auto shadow-xs" data-bs-toggle="modal" data-bs-target="#manageComplaintModal">
+                            <i class="fa-solid fa-clipboard-check me-1.5"></i> Manage Complaint
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- FIELD GIS MAP -->
+    <div class="card border-0 shadow-sm rounded-4" id="field-map">
+        <div class="card-header bg-white p-3 px-4 border-0">
+            <h5 class="fw-extrabold m-0 text-navy font-poppins"><i class="fa-solid fa-map-location-dot text-danger me-2"></i> Field GIS Inspection Map</h5>
+        </div>
+        <div class="card-body p-0 rounded-bottom-4 overflow-hidden">
+            <div id="fieldInspectionMap" style="height: 380px;"></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- FIELD-WORK VERIFICATION MANAGE COMPLAINT MODAL -->
+<div class="modal fade" id="manageComplaintModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content rounded-4 border-0 shadow-2xl overflow-hidden">
+            
+            <!-- MODAL HEADER -->
+            <div class="modal-header bg-navy text-white p-3 px-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary text-white rounded-3 p-2 font-bold shadow-xs">
+                        <i class="fa-solid fa-clipboard-check fa-lg"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-amber text-dark font-mono fw-black">CBE-2026-8942</span>
+                            <span class="badge bg-primary text-uppercase font-mono">ROADS</span>
+                        </div>
+                        <h5 class="modal-title font-poppins fw-extrabold h6 m-0 mt-1">Manage Complaint</h5>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- MODAL BODY (TWO-COLUMN RESPONSIVE LAYOUT) -->
+            <div class="modal-body p-4 bg-light">
+                <form action="{{ url_for('update_complaint_status', complaint_id='CBE-2026-8942') }}" method="POST">
+                    <div class="row g-4">
+                        
+                        <!-- LEFT COLUMN: ISSUE DETAILS, GPS SITE LOCATION, CITIZEN PHOTO -->
+                        <div class="col-lg-6 space-y-3">
+                            
+                            <!-- 1. ISSUE DETAILS -->
+                            <div class="card border-0 shadow-2xs rounded-3 p-3 bg-white">
+                                <h6 class="fw-extrabold text-navy uppercase small border-bottom pb-2 font-poppins text-primary">
+                                    <i class="fa-solid fa-circle-info me-1"></i> 1. Issue Details
+                                </h6>
+                                <div class="row g-2 small mb-2">
+                                    <div class="col-6"><span class="text-muted">Complaint ID:</span> <strong class="font-mono text-dark d-block">CBE-2026-8942</strong></div>
+                                    <div class="col-6"><span class="text-muted">Category:</span> <strong class="text-dark d-block">Roads & Potholes</strong></div>
+                                    <div class="col-6"><span class="text-muted">Submitted Date:</span> <strong class="text-dark d-block">Aug 01, 2026</strong></div>
+                                    <div class="col-6"><span class="text-muted">Priority:</span> <span class="badge bg-danger">Urgent</span></div>
+                                    <div class="col-12"><span class="text-muted">Current Status:</span> <span class="badge bg-warning text-dark fw-extrabold ms-1">Work In Progress</span></div>
+                                </div>
+                                <div>
+                                    <span class="text-muted small fw-bold">Issue Description:</span>
+                                    <p class="small text-dark bg-light p-2.5 rounded-3 border m-0 mt-1">
+                                        Large pothole near Peelamedu signal causing traffic congestion and severe hazard for two-wheelers during monsoon rains.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- 2. GPS SITE LOCATION -->
+                            <div class="card border-0 shadow-2xs rounded-3 p-3 bg-white">
+                                <h6 class="fw-extrabold text-navy uppercase small border-bottom pb-2 font-poppins text-danger">
+                                    <i class="fa-solid fa-location-dot me-1"></i> 2. GPS Site Location
+                                </h6>
+                                <p class="small fw-extrabold text-dark mb-2">
+                                    Avinashi Road, Peelamedu Signal Junction, Coimbatore – 641004
+                                </p>
+                                <div class="p-2 bg-light border rounded-3 font-mono small text-center mb-2">
+                                    Lat: <strong>11.0267°N</strong> | Long: <strong>77.0018°E</strong>
+                                </div>
+                                <button type="button" onclick="alert('Viewing GPS coordinates on Leaflet Field Map')" class="btn btn-outline-primary btn-sm w-100 rounded-3 fw-bold">
+                                    <i class="fa-solid fa-map-location-dot me-1"></i> View on Map
+                                </button>
+                            </div>
+
+                            <!-- 3. CITIZEN PHOTO -->
+                            <div class="card border-0 shadow-2xs rounded-3 p-3 bg-white">
+                                <h6 class="fw-extrabold text-navy uppercase small border-bottom pb-2 font-poppins text-success">
+                                    <i class="fa-solid fa-camera me-1"></i> 3. Citizen Photo
+                                </h6>
+                                <img src="https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?w=800&auto=format&fit=crop&q=60" alt="Citizen Complaint" class="img-fluid rounded-3 border" style="height: 200px; object-fit: cover; width: 100%;">
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT COLUMN: UPDATE STATUS, REMARKS, FIELD PHOTO, ACTION BUTTON -->
+                        <div class="col-lg-6 space-y-3">
+                            
+                            <!-- 4. UPDATE COMPLAINT STATUS -->
+                            <div class="card border-0 shadow-2xs rounded-3 p-3 bg-white border-start border-primary border-3">
+                                <h6 class="fw-extrabold text-navy uppercase small border-bottom pb-2 font-poppins text-primary">
+                                    <i class="fa-solid fa-pen-to-square me-1"></i> 4. Update Complaint Status
+                                </h6>
+                                <select name="status" class="form-select rounded-3 fw-bold border-primary" required>
+                                    <option value="Assigned">Assigned</option>
+                                    <option value="Work In Progress" selected>Work In Progress</option>
+                                    <option value="Resolved">Resolved</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+
+                            <!-- 5. RESOLUTION NOTES / REMARKS -->
+                            <div class="card border-0 shadow-2xs rounded-3 p-3 bg-white">
+                                <h6 class="fw-extrabold text-navy uppercase small border-bottom pb-2 font-poppins text-navy">
+                                    <i class="fa-solid fa-file-signature me-1"></i> 5. Resolution Notes / Remarks
+                                </h6>
+                                <textarea name="resolution_notes" rows="4" class="form-control rounded-3 small" placeholder="Describe the work completed, action taken, materials used, or reason for rejection..."></textarea>
+                            </div>
+
+                            <!-- 6. FIELD WORK PHOTO -->
+                            <div class="card border-0 shadow-2xs rounded-3 p-3 bg-white">
+                                <h6 class="fw-extrabold text-navy uppercase small border-bottom pb-2 font-poppins text-purple">
+                                    <i class="fa-solid fa-upload me-1"></i> 6. Field Work Photo
+                                </h6>
+                                <label class="form-label small font-bold text-muted">Upload Resolution Photo</label>
+                                <input type="file" name="resolution_photo" class="form-control rounded-3 btn-sm">
+                            </div>
+
+                            <!-- 7. ACTION BUTTON -->
+                            <div class="pt-2">
+                                <button type="submit" class="btn btn-primary w-100 py-3 rounded-3 fw-black shadow-md">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i> Save & Update Status
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('fieldInspectionMap')) {
+        var map = L.map('fieldInspectionMap').setView([11.0267, 77.0018], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker([11.0267, 77.0018]).addTo(map)
+            .bindPopup("<b>Complaint #CBE-2026-8942</b><br>Roads & Potholes - Peelamedu Junction")
+            .openPopup();
+    }
+});
+</script>
+{% endblock %}
