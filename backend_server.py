@@ -41,9 +41,31 @@ except Exception as e:
 app = Flask(__name__)
 CORS(app)
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'cityconnect_app.db')
+import tempfile
+
+if os.environ.get('VERCEL'):
+    DB_PATH = os.path.join(tempfile.gettempdir(), 'cityconnect_app.db')
+else:
+    DB_PATH = os.path.join(os.path.dirname(__file__), 'cityconnect_app.db')
 
 def get_db():
+    mysql_host = os.environ.get('MYSQL_HOST')
+    if mysql_host:
+        try:
+            import pymysql
+            conn = pymysql.connect(
+                host=mysql_host,
+                user=os.environ.get('MYSQL_USER', 'root'),
+                password=os.environ.get('MYSQL_PASSWORD', ''),
+                database=os.environ.get('MYSQL_DB', 'cityconnect'),
+                port=int(os.environ.get('MYSQL_PORT', 3306)),
+                cursorclass=pymysql.cursors.DictCursor,
+                autocommit=True
+            )
+            return conn
+        except Exception as e:
+            print("MySQL connection error, falling back to SQLite:", e)
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
