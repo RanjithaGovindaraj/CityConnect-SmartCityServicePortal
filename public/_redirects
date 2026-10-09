@@ -1,2 +1,2 @@
-/api/* https://city-connect-smart-city-service-por.vercel.app/api/:splat 200!
+/api/* /.netlify/functions/api/:splat 200
 /* /index.html 200
