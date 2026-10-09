@@ -1,22 +1,16 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from http.server import BaseHTTPRequestHandler
+import json
 
-app = Flask(__name__)
-CORS(app)
-
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS,PATCH')
-    return response
-
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def catch_all(path):
-    return jsonify({
-        "status": "healthy",
-        "portal": "Coimbatore CityConnect Smart City API",
-        "requested_path": path,
-        "request_url": request.url
-    })
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        response_data = {
+            "status": "healthy",
+            "portal": "Coimbatore CityConnect Smart City API",
+            "path": self.path
+        }
+        self.wfile.write(json.dumps(response_data).encode('utf-8'))
+        return
