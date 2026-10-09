@@ -252,10 +252,13 @@ def seed_data(cursor):
 # ---------------- API ROUTES ----------------
 
 @app.route('/', methods=['GET'])
+@app.route('/api', methods=['GET'])
+@app.route('/api/', methods=['GET'])
 def home():
-    return redirect('http://localhost:3000')
+    return jsonify({"status": "healthy", "portal": "Coimbatore CityConnect Smart City API", "version": "1.0.0"})
 
 @app.route('/api/locations', methods=['GET'])
+@app.route('/locations', methods=['GET'])
 def get_locations():
     conn = get_db()
     cursor = conn.cursor()
@@ -282,6 +285,7 @@ def get_locations():
     return jsonify({"locations": loc_rows + comp_locs})
 
 @app.route('/api/complaints', methods=['GET'])
+@app.route('/complaints', methods=['GET'])
 def get_complaints():
     citizen_id = request.args.get('citizenId')
     employee_id = request.args.get('employeeId')
@@ -313,6 +317,7 @@ def get_complaints():
     return jsonify({"complaints": rows})
 
 @app.route('/api/complaints', methods=['POST'])
+@app.route('/complaints', methods=['POST'])
 def create_complaint():
     data = request.get_json() or {}
     new_id = f"CBE-2026-{random.randint(1000, 9999)}"
@@ -368,6 +373,7 @@ def create_complaint():
     return jsonify({"message": "Complaint registered successfully", "id": new_id}), 201
 
 @app.route('/api/complaints/<complaint_id>/status', methods=['PUT'])
+@app.route('/complaints/<complaint_id>/status', methods=['PUT'])
 def update_complaint_status(complaint_id):
     data = request.get_json() or {}
     status = data.get('status')
@@ -415,6 +421,7 @@ def update_complaint_status(complaint_id):
     return jsonify({"message": "Status updated and citizen notified successfully"})
 
 @app.route('/api/complaints/<complaint_id>/assign', methods=['PUT'])
+@app.route('/complaints/<complaint_id>/assign', methods=['PUT'])
 def assign_complaint(complaint_id):
     data = request.get_json() or {}
     emp_id = data.get('employeeId')
@@ -447,6 +454,7 @@ def assign_complaint(complaint_id):
     return jsonify({"message": "Complaint assigned successfully"})
 
 @app.route('/api/bills', methods=['GET'])
+@app.route('/bills', methods=['GET'])
 def get_bills():
     consumer_number = request.args.get('consumerNumber')
     citizen_name = request.args.get('citizenName')
@@ -469,6 +477,7 @@ def get_bills():
     return jsonify({"bills": rows})
 
 @app.route('/api/bills', methods=['POST'])
+@app.route('/bills', methods=['POST'])
 def create_bill():
     data = request.get_json() or {}
     bill_id = f"bill-{int(datetime.now().timestamp() * 1000)}"
@@ -497,6 +506,7 @@ def create_bill():
     return jsonify({"message": "Bill generated successfully", "billId": bill_id}), 201
 
 @app.route('/api/bills/pay', methods=['POST'])
+@app.route('/bills/pay', methods=['POST'])
 def pay_bill():
     data = request.get_json() or {}
     bill_id = data.get('billId')
@@ -540,6 +550,7 @@ def pay_bill():
     return jsonify({"message": "Payment processed successfully", "receipt": receipt})
 
 @app.route('/api/emergency', methods=['GET'])
+@app.route('/emergency', methods=['GET'])
 def get_emergency():
     conn = get_db()
     cursor = conn.cursor()
@@ -549,6 +560,7 @@ def get_emergency():
     return jsonify({"contacts": rows})
 
 @app.route('/api/news', methods=['GET'])
+@app.route('/news', methods=['GET'])
 def get_news():
     conn = get_db()
     cursor = conn.cursor()
@@ -558,6 +570,7 @@ def get_news():
     return jsonify({"news": rows})
 
 @app.route('/api/news', methods=['POST'])
+@app.route('/news', methods=['POST'])
 def create_news():
     data = request.get_json() or {}
     news_id = f"news-{int(datetime.now().timestamp() * 1000)}"
@@ -584,6 +597,7 @@ def create_news():
     return jsonify({"message": "Announcement published successfully"}), 201
 
 @app.route('/api/notifications', methods=['GET'])
+@app.route('/notifications', methods=['GET'])
 def get_notifications():
     user_id = request.args.get('userId')
     conn = get_db()
@@ -594,6 +608,7 @@ def get_notifications():
     return jsonify({"notifications": rows})
 
 @app.route('/api/notifications/read-all', methods=['PATCH'])
+@app.route('/notifications/read-all', methods=['PATCH'])
 def read_all_notifications():
     conn = get_db()
     cursor = conn.cursor()
@@ -603,6 +618,7 @@ def read_all_notifications():
     return jsonify({"message": "All notifications marked as read"})
 
 @app.route('/api/users', methods=['GET'])
+@app.route('/users', methods=['GET'])
 def get_users():
     role = request.args.get('role')
     conn = get_db()
@@ -620,6 +636,7 @@ def get_users():
     return jsonify({"users": rows})
 
 @app.route('/api/users/<user_id>/status', methods=['PATCH'])
+@app.route('/users/<user_id>/status', methods=['PATCH'])
 def update_user_status(user_id):
     data = request.get_json() or {}
     active = 1 if data.get('active') else 0
@@ -632,6 +649,7 @@ def update_user_status(user_id):
     return jsonify({"message": f"User active status updated to {active}"})
 
 @app.route('/api/auth/login', methods=['POST'])
+@app.route('/auth/login', methods=['POST'])
 def auth_login():
     data = request.get_json() or {}
     email = data.get('email', '').strip().lower()
@@ -683,6 +701,7 @@ def auth_login():
 
 
 @app.route('/api/auth/register', methods=['POST'])
+@app.route('/auth/register', methods=['POST'])
 def auth_register():
     data = request.get_json() or {}
     name = data.get('name', 'Registered Citizen')
@@ -723,6 +742,7 @@ def auth_register():
     }), 201
 
 @app.route('/api/stats', methods=['GET'])
+@app.route('/stats', methods=['GET'])
 def get_stats():
     conn = get_db()
     cursor = conn.cursor()
@@ -775,6 +795,7 @@ def get_stats():
     })
 
 @app.route('/api/ai/chat', methods=['POST'])
+@app.route('/ai/chat', methods=['POST'])
 def ai_chat():
     data = request.get_json() or {}
     message = data.get('message', '').strip()
@@ -812,6 +833,7 @@ def ai_chat():
     return jsonify({"reply": reply})
 
 @app.route('/api/ai/analyze-image', methods=['POST'])
+@app.route('/ai/analyze-image', methods=['POST'])
 def analyze_image():
     data = request.json or {}
     image_url = data.get('photoUrl', '')
