@@ -180,92 +180,88 @@ export default function App() {
   const [showAIWidget, setShowAIWidget] = useState(false);
   const [timelineComplaint, setTimelineComplaint] = useState<Complaint | null>(null);
 
-  // Fetch initial API data on mount and merge with local persistence
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [locRes, compRes, billRes, emergRes, newsRes, notifRes, statsRes, userRes] =
-          await Promise.all([
-            fetch('/api/locations').then((r) => r.ok ? r.json() : null).catch(() => null),
-            fetch('/api/complaints').then((r) => r.ok ? r.json() : null).catch(() => null),
-            fetch('/api/bills').then((r) => r.ok ? r.json() : null).catch(() => null),
-            fetch('/api/emergency').then((r) => r.ok ? r.json() : null).catch(() => null),
-            fetch('/api/news').then((r) => r.ok ? r.json() : null).catch(() => null),
-            fetch('/api/notifications').then((r) => r.ok ? r.json() : null).catch(() => null),
-            fetch('/api/stats').then((r) => r.ok ? r.json() : null).catch(() => null),
-            fetch('/api/users').then((r) => r.ok ? r.json() : null).catch(() => null),
-          ]);
+  const BACKEND_URL = 'https://city-connect-smart-city-service-por.vercel.app';
 
-        if (Array.isArray(locRes)) setLocations(locRes);
-        else if (locRes && Array.isArray(locRes.locations)) setLocations(locRes.locations);
-
-        let fetchedComplaints: Complaint[] | null = null;
-        if (Array.isArray(compRes)) fetchedComplaints = compRes;
-        else if (compRes && Array.isArray(compRes.complaints)) fetchedComplaints = compRes.complaints;
-        if (fetchedComplaints && fetchedComplaints.length > 0) {
-          setComplaints((prev) => {
-            const localIds = new Set(prev.map(c => c.id));
-            const newFromApi = fetchedComplaints!.filter(c => !localIds.has(c.id));
-            const merged = [...prev, ...newFromApi];
-            try { localStorage.setItem('cityconnect_complaints', JSON.stringify(merged)); } catch {}
-            return merged;
-          });
-        }
-
-        let fetchedBills: Bill[] | null = null;
-        if (Array.isArray(billRes)) fetchedBills = billRes;
-        else if (billRes && Array.isArray(billRes.bills)) fetchedBills = billRes.bills;
-        if (fetchedBills && fetchedBills.length > 0) {
-          setBills((prev) => {
-            const localIds = new Set(prev.map(b => b.id));
-            const newFromApi = fetchedBills!.filter(b => !localIds.has(b.id));
-            const merged = [...prev, ...newFromApi];
-            try { localStorage.setItem('cityconnect_bills', JSON.stringify(merged)); } catch {}
-            return merged;
-          });
-        }
-
-        if (Array.isArray(emergRes)) setEmergencyContacts(emergRes);
-        else if (emergRes && Array.isArray(emergRes.contacts)) setEmergencyContacts(emergRes.contacts);
-
-        let fetchedNews: NewsItem[] | null = null;
-        if (Array.isArray(newsRes)) fetchedNews = newsRes;
-        else if (newsRes && Array.isArray(newsRes.news)) fetchedNews = newsRes.news;
-        if (fetchedNews && fetchedNews.length > 0) {
-          setNews((prev) => {
-            const localIds = new Set(prev.map(n => n.id));
-            const newFromApi = fetchedNews!.filter(n => !localIds.has(n.id));
-            const merged = [...prev, ...newFromApi];
-            try { localStorage.setItem('cityconnect_news', JSON.stringify(merged)); } catch {}
-            return merged;
-          });
-        }
-
-        if (Array.isArray(notifRes)) setNotifications(notifRes);
-        else if (notifRes && Array.isArray(notifRes.notifications)) setNotifications(notifRes.notifications);
-
-        let fetchedUsers: User[] | null = null;
-        if (userRes && Array.isArray(userRes.users) && userRes.users.length > 0) {
-          fetchedUsers = userRes.users;
-        }
-        if (fetchedUsers) {
-          setUsers((prev) => {
-            const localEmails = new Set(prev.map(u => u.email.toLowerCase()));
-            const newFromApi = fetchedUsers!.filter(u => !localEmails.has(u.email.toLowerCase()));
-            const merged = [...prev, ...newFromApi];
-            try { localStorage.setItem('cityconnect_users', JSON.stringify(merged)); } catch {}
-            return merged;
-          });
-        }
-
-        if (statsRes && statsRes.stats) setStats(statsRes.stats);
-        else if (statsRes && statsRes.totalCitizens) setStats(statsRes);
-      } catch (err) {
-        console.error('Error fetching CCMC API initial data:', err);
+  const safeApiFetch = async (path: string, options?: RequestInit) => {
+    try {
+      const res = await fetch(path, options);
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        return await res.json();
       }
-    };
+    } catch {}
 
+    try {
+      const targetUrl = `${BACKEND_URL}${path.startsWith('/') ? path : '/' + path}`;
+      const res = await fetch(targetUrl, options);
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        return await res.json();
+      }
+    } catch {}
+
+    return null;
+  };
+
+  const fetchData = async () => {
+    try {
+      const locRes = await safeApiFetch('/api/locations');
+      const compRes = await safeApiFetch('/api/complaints');
+      const billRes = await safeApiFetch('/api/bills');
+      const emergRes = await safeApiFetch('/api/emergency');
+      const newsRes = await safeApiFetch('/api/news');
+      const notifRes = await safeApiFetch('/api/notifications');
+      const statsRes = await safeApiFetch('/api/stats');
+      const userRes = await safeApiFetch('/api/users');
+
+      if (locRes && (Array.isArray(locRes) || Array.isArray(locRes.locations))) {
+        setLocations(Array.isArray(locRes) ? locRes : locRes.locations);
+      }
+
+      if (compRes && (Array.isArray(compRes) || Array.isArray(compRes.complaints))) {
+        const list = Array.isArray(compRes) ? compRes : compRes.complaints;
+        setComplaints(list);
+        try { localStorage.setItem('cityconnect_complaints', JSON.stringify(list)); } catch {}
+      }
+
+      if (billRes && (Array.isArray(billRes) || Array.isArray(billRes.bills))) {
+        const list = Array.isArray(billRes) ? billRes : billRes.bills;
+        setBills(list);
+        try { localStorage.setItem('cityconnect_bills', JSON.stringify(list)); } catch {}
+      }
+
+      if (newsRes && (Array.isArray(newsRes) || Array.isArray(newsRes.news))) {
+        const list = Array.isArray(newsRes) ? newsRes : newsRes.news;
+        setNews(list);
+        try { localStorage.setItem('cityconnect_news', JSON.stringify(list)); } catch {}
+      }
+
+      if (notifRes && (Array.isArray(notifRes) || Array.isArray(notifRes.notifications))) {
+        const list = Array.isArray(notifRes) ? notifRes : notifRes.notifications;
+        setNotifications(list);
+        try { localStorage.setItem('cityconnect_notifications', JSON.stringify(list)); } catch {}
+      }
+
+      if (userRes && (Array.isArray(userRes) || Array.isArray(userRes.users))) {
+        const list = Array.isArray(userRes) ? userRes : userRes.users;
+        if (list.length > 0) {
+          setUsers(list);
+          try { localStorage.setItem('cityconnect_users', JSON.stringify(list)); } catch {}
+        }
+      }
+
+      if (statsRes && statsRes.stats) setStats(statsRes.stats);
+      else if (statsRes && statsRes.totalCitizens) setStats(statsRes);
+    } catch (err) {
+      console.error('Error fetching CCMC API initial data:', err);
+    }
+  };
+
+  // Fetch initial API data on mount and set up periodic 10s polling for cross-device sync
+  useEffect(() => {
     fetchData();
+    const interval = setInterval(fetchData, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   // Smooth scroll helper for sections
@@ -297,7 +293,7 @@ export default function App() {
     setAdminActiveTab('dashboard');
   };
 
-  const handleRegisterUser = (newUser: User) => {
+  const handleRegisterUser = async (newUser: User) => {
     setUsers((prev) => {
       const exists = prev.some((u) => u.email.toLowerCase() === newUser.email.toLowerCase());
       if (exists) return prev;
@@ -308,12 +304,13 @@ export default function App() {
       return updated;
     });
 
-    // Fire & forget sync to API backend
-    fetch('/api/register', {
+    await safeApiFetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newUser),
-    }).catch(() => {});
+    });
+
+    await fetchData();
   };
 
   const handleLogout = () => {
@@ -332,19 +329,12 @@ export default function App() {
 
   const handleCreateBill = async (billData: any) => {
     let createdBill: Bill | null = null;
-    try {
-      const res = await fetch('/api/bills', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(billData),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.bill) createdBill = data.bill;
-      }
-    } catch (err) {
-      console.error('Failed to create bill via API:', err);
-    }
+    const res = await safeApiFetch('/api/bills', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(billData),
+    });
+    if (res && res.bill) createdBill = res.bill;
 
     if (!createdBill) {
       createdBill = {
@@ -368,6 +358,8 @@ export default function App() {
       } catch {}
       return updated;
     });
+
+    await fetchData();
   };
 
   const handleVerifyComplaint = async (complaintId: string) => {
@@ -379,15 +371,11 @@ export default function App() {
   };
 
   const handleToggleUserStatus = async (userId: string, active: boolean) => {
-    try {
-      await fetch(`/api/users/${userId}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ active }),
-      }).catch(() => {});
-    } catch (err) {
-      console.error('Failed to toggle user status:', err);
-    }
+    await safeApiFetch(`/api/users/${userId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active }),
+    });
     setUsers((prev) => {
       const updated = prev.map((u) => (u.id === userId ? { ...u, active } : u));
       try {
@@ -395,23 +383,17 @@ export default function App() {
       } catch {}
       return updated;
     });
+    await fetchData();
   };
 
   const handleRegisterComplaint = async (payload: any) => {
     let createdComplaint: Complaint | null = null;
-    try {
-      const res = await fetch('/api/complaints', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.complaint) createdComplaint = data.complaint;
-      }
-    } catch (err) {
-      console.error('Failed to register complaint via API:', err);
-    }
+    const res = await safeApiFetch('/api/complaints', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (res && res.complaint) createdComplaint = res.complaint;
 
     if (!createdComplaint) {
       createdComplaint = {
@@ -466,22 +448,20 @@ export default function App() {
       } catch {}
       return updated;
     });
+
+    await fetchData();
   };
 
   const handlePayBill = async (billId: string, paymentMode: string) => {
-    try {
-      await fetch('/api/bills/pay', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          billId,
-          paymentMode,
-          citizenName: currentUser?.name || 'Karthik Subramanian',
-        }),
-      }).catch(() => {});
-    } catch (err) {
-      console.error('Failed to pay bill via API:', err);
-    }
+    await safeApiFetch('/api/bills/pay', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        billId,
+        paymentMode,
+        citizenName: currentUser?.name || 'Karthik Subramanian',
+      }),
+    });
 
     setBills((prev) => {
       const updated = prev.map((b) => (b.id === billId ? { ...b, status: 'Paid' as const } : b));
@@ -491,6 +471,7 @@ export default function App() {
       return updated;
     });
 
+    await fetchData();
     return { success: true };
   };
 
@@ -500,20 +481,16 @@ export default function App() {
     notes?: string,
     photoUrl?: string
   ) => {
-    try {
-      await fetch(`/api/complaints/${complaintId}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status,
-          updatedBy: currentUser?.name || 'Officer Sundaram',
-          comment: notes || `Status updated to ${status}`,
-          resolutionPhotoUrl: photoUrl,
-        }),
-      }).catch(() => {});
-    } catch (err) {
-      console.error('Failed to update complaint status via API:', err);
-    }
+    await safeApiFetch(`/api/complaints/${complaintId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status,
+        updatedBy: currentUser?.name || 'Officer Sundaram',
+        comment: notes || `Status updated to ${status}`,
+        resolutionPhotoUrl: photoUrl,
+      }),
+    });
 
     setComplaints((prev) => {
       const updated = prev.map((c) =>
@@ -560,6 +537,8 @@ export default function App() {
       } catch {}
       return updated;
     });
+
+    await fetchData();
   };
 
   const handleAssignComplaint = async (complaintId: string, employeeId: string) => {
@@ -569,19 +548,15 @@ export default function App() {
       department: 'Sanitation & Solid Waste',
     };
 
-    try {
-      await fetch(`/api/complaints/${complaintId}/assign`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          employeeId: emp.id,
-          employeeName: emp.name,
-          employeeDepartment: emp.department || 'Civic Services',
-        }),
-      }).catch(() => {});
-    } catch (err) {
-      console.error('Failed to assign complaint via API:', err);
-    }
+    await safeApiFetch(`/api/complaints/${complaintId}/assign`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        employeeId: emp.id,
+        employeeName: emp.name,
+        employeeDepartment: emp.department || 'Civic Services',
+      }),
+    });
 
     setComplaints((prev) => {
       const updated = prev.map((c) =>
@@ -609,23 +584,18 @@ export default function App() {
       } catch {}
       return updated;
     });
+
+    await fetchData();
   };
 
   const handlePublishNews = async (newsData: any) => {
     let createdNews: NewsItem | null = null;
-    try {
-      const res = await fetch('/api/news', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newsData),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.newsItem) createdNews = data.newsItem;
-      }
-    } catch (err) {
-      console.error('Failed to publish news via API:', err);
-    }
+    const res = await safeApiFetch('/api/news', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newsData),
+    });
+    if (res && res.newsItem) createdNews = res.newsItem;
 
     if (!createdNews) {
       createdNews = {
@@ -646,6 +616,8 @@ export default function App() {
       } catch {}
       return updated;
     });
+
+    await fetchData();
   };
 
   return (
