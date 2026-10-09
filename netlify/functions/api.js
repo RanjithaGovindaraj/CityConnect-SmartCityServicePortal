@@ -1,5 +1,6 @@
-const https = require('https');
-const crypto = require('crypto');
+import https from 'https';
+import crypto from 'crypto';
+
 
 // Global online persistent storage via jsonbin / fallback memory
 const GLOBAL_BIN_URL = 'https://api.jsonbin.io/v3/b/66fa1234e4104c5e6f890123'; // Public sync bin ID or dynamic fallback
@@ -58,7 +59,7 @@ function jsonResponse(statusCode, body) {
   };
 }
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   // Handle CORS Preflight
   if (event.httpMethod === 'OPTIONS') {
     return jsonResponse(200, { message: 'OK' });
