@@ -28,15 +28,13 @@ def create_jwt_token(payload):
 
 # Gemini AI Client Setup
 ai_client = None
-try:
-    from google import genai
-    apiKey = os.environ.get('GEMINI_API_KEY')
-    if apiKey:
-        ai_client = genai.Client(api_key=apiKey)
-    else:
-        ai_client = genai.Client()
-except Exception as e:
-    print("Gemini AI Client Notice:", e)
+gemini_key = os.environ.get('GEMINI_API_KEY')
+if gemini_key:
+    try:
+        from google import genai
+        ai_client = genai.Client(api_key=gemini_key)
+    except Exception as e:
+        print("Gemini AI Client Notice:", e)
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
