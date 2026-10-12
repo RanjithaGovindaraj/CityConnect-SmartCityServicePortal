@@ -849,3 +849,10 @@ def analyze_image():
         "priority": prio,
         "description": desc
     })
+
+if __name__ == '__main__':
+    conn = get_db()
+    conn.close()
+    print("Starting Coimbatore CityConnect API Server on http://127.0.0.1:5000...")
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
